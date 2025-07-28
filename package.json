@@ -1,0 +1,29 @@
+{
+  "name": "fingerprint-booking-app",
+  "version": "1.0.0",
+  "description": "Web application for booking fingerprint capturing and ID photo shoot appointments",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "nodemailer": "^6.10.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "booking",
+    "fingerprint",
+    "id-photo",
+    "appointment"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
