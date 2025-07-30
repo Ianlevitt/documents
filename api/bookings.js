@@ -6,6 +6,15 @@ let bookings = [];
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const booking = req.body;
+    
+    // Check for maintenance dates
+    const maintenanceDates = ['2025-07-31', '2025-08-01'];
+    if (maintenanceDates.includes(booking.date)) {
+      return res.status(400).json({ 
+        error: 'This date is unavailable due to building maintenance. Please select a different date.' 
+      });
+    }
+    
     // Check for booking conflict
     const conflict = bookings.some(b => b.date === booking.date && b.time === booking.time);
     if (conflict) {

@@ -1,6 +1,9 @@
 // Global variables
 let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
 
+// Maintenance dates - Thursday and Friday this week
+const MAINTENANCE_DATES = ['2025-07-31', '2025-08-01']; // Thursday and Friday
+
 // DOM elements
 const bookingForm = document.getElementById('bookingForm');
 const receiptModal = document.getElementById('receiptModal');
@@ -10,13 +13,46 @@ const receiptContent = document.getElementById('receiptContent');
 document.addEventListener('DOMContentLoaded', function() {
     initializeForm();
     setMinDate();
+    sendMaintenanceNotification();
 });
 
-// Set minimum date to today
+// Send maintenance notification to all users
+async function sendMaintenanceNotification() {
+    try {
+        const response = await fetch('/api/maintenance-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Maintenance notification sent:', result);
+        }
+    } catch (error) {
+        console.error('Error sending maintenance notification:', error);
+    }
+}
+
+// Set minimum date to today and disable maintenance dates
 function setMinDate() {
     const dateInput = document.getElementById('date');
     const today = new Date().toISOString().split('T')[0];
     dateInput.min = today;
+    
+    // Add event listener to disable maintenance dates
+    dateInput.addEventListener('change', function() {
+        const selectedDate = this.value;
+        if (MAINTENANCE_DATES.includes(selectedDate)) {
+            showError('This date is unavailable due to building maintenance. Please select a different date.');
+            this.value = '';
+            return;
+        }
+    });
+}
+
+// Check if date is during maintenance
+function isMaintenanceDate(date) {
+    return MAINTENANCE_DATES.includes(date);
 }
 
 // Initialize form with event listeners
@@ -136,6 +172,12 @@ function validateForm() {
         
         if (selectedDate < today) {
             showFieldError(date, 'Please select a future date');
+            isValid = false;
+        }
+        
+        // Check for maintenance dates
+        if (isMaintenanceDate(date.value)) {
+            showFieldError(date, 'This date is unavailable due to building maintenance');
             isValid = false;
         }
     }

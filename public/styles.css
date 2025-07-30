@@ -20,6 +20,40 @@ body {
     padding: 20px;
 }
 
+/* Maintenance Notice */
+.maintenance-notice {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.maintenance-notice i {
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.notice-content {
+    flex: 1;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.notice-content strong {
+    font-weight: 600;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
 /* Header Styles */
 .header {
     text-align: center;
