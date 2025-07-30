@@ -1,7 +1,34 @@
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
 
-// In-memory bookings (per function instance, not persistent)
-let bookings = [];
+// File path for persistent storage
+const BOOKINGS_FILE = path.join(process.cwd(), 'bookings.json');
+
+// Load existing bookings from file
+function loadBookings() {
+  try {
+    if (fs.existsSync(BOOKINGS_FILE)) {
+      const data = fs.readFileSync(BOOKINGS_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error loading bookings:', error);
+  }
+  return [];
+}
+
+// Save bookings to file
+function saveBookings(bookings) {
+  try {
+    fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
+  } catch (error) {
+    console.error('Error saving bookings:', error);
+  }
+}
+
+// Initialize bookings from file
+let bookings = loadBookings();
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -20,7 +47,10 @@ export default async function handler(req, res) {
     if (conflict) {
       return res.status(409).json({ error: 'This time slot is already booked.' });
     }
+    
     bookings.push(booking);
+    saveBookings(bookings); // Save to file
+    
     try {
       await sendConfirmationEmail(booking);
       res.json({ success: true });

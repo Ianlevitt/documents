@@ -1,20 +1,45 @@
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
 
-// In-memory bookings (per function instance, not persistent)
-let bookings = [];
+// File path for persistent storage
+const BOOKINGS_FILE = path.join(process.cwd(), 'bookings.json');
+
+// Load existing bookings from file
+function loadBookings() {
+  try {
+    if (fs.existsSync(BOOKINGS_FILE)) {
+      const data = fs.readFileSync(BOOKINGS_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error loading bookings:', error);
+  }
+  return [];
+}
+
+// Manual list of existing customers (add more emails as needed)
+const EXISTING_CUSTOMERS = [
+    'sammachine07@gmail.com',
+    // Add more customer emails here as needed
+];
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      // Get all unique email addresses from bookings
-      const uniqueEmails = [...new Set(bookings.map(booking => booking.email))];
+      // Load bookings from file
+      const bookings = loadBookings();
       
-      if (uniqueEmails.length === 0) {
+      // Get all unique email addresses from bookings + existing customers
+      const bookingEmails = bookings.map(booking => booking.email);
+      const allEmails = [...new Set([...bookingEmails, ...EXISTING_CUSTOMERS])];
+      
+      if (allEmails.length === 0) {
         return res.status(200).json({ message: 'No users to notify' });
       }
 
       // Send maintenance notification to all users
-      const notificationPromises = uniqueEmails.map(email => 
+      const notificationPromises = allEmails.map(email => 
         sendMaintenanceNotification(email)
       );
       
@@ -22,8 +47,9 @@ export default async function handler(req, res) {
       
       res.status(200).json({ 
         success: true, 
-        message: `Maintenance notification sent to ${uniqueEmails.length} users`,
-        usersNotified: uniqueEmails.length
+        message: `Maintenance notification sent to ${allEmails.length} users`,
+        usersNotified: allEmails.length,
+        emails: allEmails
       });
     } catch (err) {
       console.error('Error sending maintenance notifications:', err);
