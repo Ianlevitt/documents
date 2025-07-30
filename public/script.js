@@ -13,11 +13,17 @@ const receiptContent = document.getElementById('receiptContent');
 document.addEventListener('DOMContentLoaded', function() {
     initializeForm();
     setMinDate();
-    sendMaintenanceNotification();
+    // Removed automatic notification sending
 });
 
-// Send maintenance notification to all users
+// Send maintenance notification to all users (manual trigger)
 async function sendMaintenanceNotification() {
+    const button = document.querySelector('.admin-btn');
+    const originalText = button.innerHTML;
+    
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    
     try {
         const response = await fetch('/api/maintenance-notification', {
             method: 'POST',
@@ -26,10 +32,16 @@ async function sendMaintenanceNotification() {
         
         if (response.ok) {
             const result = await response.json();
-            console.log('Maintenance notification sent:', result);
+            alert(`✅ Maintenance notifications sent successfully!\n\nSent to ${result.usersNotified} users:\n${result.emails.join('\n')}`);
+        } else {
+            alert('❌ Failed to send maintenance notifications. Please try again.');
         }
     } catch (error) {
         console.error('Error sending maintenance notification:', error);
+        alert('❌ Network error. Please try again.');
+    } finally {
+        button.disabled = false;
+        button.innerHTML = originalText;
     }
 }
 
