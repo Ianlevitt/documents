@@ -16,34 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Removed automatic notification sending
 });
 
-// Send maintenance notification to all users (manual trigger)
-async function sendMaintenanceNotification() {
-    const button = document.querySelector('.admin-btn');
-    const originalText = button.innerHTML;
-    
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    
-    try {
-        const response = await fetch('/api/maintenance-notification', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            alert(`✅ Maintenance notifications sent successfully!\n\nSent to ${result.usersNotified} users:\n${result.emails.join('\n')}`);
-        } else {
-            alert('❌ Failed to send maintenance notifications. Please try again.');
-        }
-    } catch (error) {
-        console.error('Error sending maintenance notification:', error);
-        alert('❌ Network error. Please try again.');
-    } finally {
-        button.disabled = false;
-        button.innerHTML = originalText;
-    }
-}
+
 
 // Set minimum date to today and disable maintenance dates
 function setMinDate() {
