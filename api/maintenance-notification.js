@@ -21,6 +21,9 @@ function loadBookings() {
 // Manual list of existing customers (add more emails as needed)
 const EXISTING_CUSTOMERS = [
     'sammachine07@gmail.com',
+    'delitojunior23@gmail.com',
+    'imahovan@gmail.com',
+    'siyabongamatavele@gmail.com',
     // Add more customer emails here as needed
 ];
 
