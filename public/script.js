@@ -4,6 +4,10 @@ let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
 // Maintenance dates - Thursday and Friday this week
 const MAINTENANCE_DATES = ['2025-07-31', '2025-08-01']; // Thursday and Friday
 
+// Restricted time for Saturday August 2nd
+const RESTRICTED_DATE = '2025-08-02'; // Saturday
+const ALLOWED_TIME_ON_RESTRICTED_DATE = '14:00'; // Only 2:00 PM allowed
+
 // DOM elements
 const bookingForm = document.getElementById('bookingForm');
 const receiptModal = document.getElementById('receiptModal');
@@ -24,13 +28,39 @@ function setMinDate() {
     const today = new Date().toISOString().split('T')[0];
     dateInput.min = today;
     
-    // Add event listener to disable maintenance dates
+    // Add event listener to disable maintenance dates and handle restricted times
     dateInput.addEventListener('change', function() {
         const selectedDate = this.value;
         if (MAINTENANCE_DATES.includes(selectedDate)) {
             showError('This date is unavailable due to building maintenance. Please select a different date.');
             this.value = '';
             return;
+        }
+        
+        // Handle restricted time for Saturday August 2nd
+        if (selectedDate === RESTRICTED_DATE) {
+            const timeSelect = document.getElementById('time');
+            // Disable all time options except 14:00
+            Array.from(timeSelect.options).forEach(option => {
+                if (option.value !== '' && option.value !== ALLOWED_TIME_ON_RESTRICTED_DATE) {
+                    option.disabled = true;
+                    option.style.color = '#ccc';
+                }
+            });
+            
+            // Set the time to 14:00 if no time is selected
+            if (!timeSelect.value || timeSelect.value === '') {
+                timeSelect.value = ALLOWED_TIME_ON_RESTRICTED_DATE;
+            }
+            
+            showError('On Saturday August 2nd, only 2:00 PM appointments are available.');
+        } else {
+            // Re-enable all time options for other dates
+            const timeSelect = document.getElementById('time');
+            Array.from(timeSelect.options).forEach(option => {
+                option.disabled = false;
+                option.style.color = '';
+            });
         }
     });
 }
@@ -164,6 +194,15 @@ function validateForm() {
         if (isMaintenanceDate(date.value)) {
             showFieldError(date, 'This date is unavailable due to building maintenance');
             isValid = false;
+        }
+        
+        // Check for restricted date and time
+        if (date.value === RESTRICTED_DATE) {
+            const timeSelect = document.getElementById('time');
+            if (timeSelect.value !== ALLOWED_TIME_ON_RESTRICTED_DATE) {
+                showFieldError(timeSelect, 'On Saturday August 2nd, only 2:00 PM appointments are available');
+                isValid = false;
+            }
         }
     }
     

@@ -36,9 +36,19 @@ export default async function handler(req, res) {
     
     // Check for maintenance dates
     const maintenanceDates = ['2025-07-31', '2025-08-01'];
+    const restrictedDate = '2025-08-02';
+    const allowedTimeOnRestrictedDate = '14:00';
+    
     if (maintenanceDates.includes(booking.date)) {
       return res.status(400).json({ 
         error: 'This date is unavailable due to building maintenance. Please select a different date.' 
+      });
+    }
+    
+    // Check for restricted date and time
+    if (booking.date === restrictedDate && booking.time !== allowedTimeOnRestrictedDate) {
+      return res.status(400).json({ 
+        error: 'On Saturday August 2nd, only 2:00 PM appointments are available.' 
       });
     }
     
