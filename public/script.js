@@ -4,9 +4,8 @@ let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
 // Maintenance dates - Thursday and Friday this week
 const MAINTENANCE_DATES = ['2025-07-31', '2025-08-01']; // Thursday and Friday
 
-// Restricted time for Saturday August 2nd
-const RESTRICTED_DATE = '2025-08-02'; // Saturday
-const ALLOWED_TIME_ON_RESTRICTED_DATE = '14:00'; // Only 2:00 PM allowed
+// Fully booked date - August 2nd
+const FULLY_BOOKED_DATE = '2025-08-02'; // Saturday - Fully booked
 
 // DOM elements
 const bookingForm = document.getElementById('bookingForm');
@@ -37,30 +36,11 @@ function setMinDate() {
             return;
         }
         
-        // Handle restricted time for Saturday August 2nd
-        if (selectedDate === RESTRICTED_DATE) {
-            const timeSelect = document.getElementById('time');
-            // Disable all time options except 14:00
-            Array.from(timeSelect.options).forEach(option => {
-                if (option.value !== '' && option.value !== ALLOWED_TIME_ON_RESTRICTED_DATE) {
-                    option.disabled = true;
-                    option.style.color = '#ccc';
-                }
-            });
-            
-            // Set the time to 14:00 if no time is selected
-            if (!timeSelect.value || timeSelect.value === '') {
-                timeSelect.value = ALLOWED_TIME_ON_RESTRICTED_DATE;
-            }
-            
-            showError('On Saturday August 2nd, only 2:00 PM appointments are available.');
-        } else {
-            // Re-enable all time options for other dates
-            const timeSelect = document.getElementById('time');
-            Array.from(timeSelect.options).forEach(option => {
-                option.disabled = false;
-                option.style.color = '';
-            });
+        // Handle fully booked date - August 2nd
+        if (selectedDate === FULLY_BOOKED_DATE) {
+            showError('Saturday August 2nd is fully booked. Please select a different date.');
+            this.value = '';
+            return;
         }
     });
 }
@@ -196,13 +176,10 @@ function validateForm() {
             isValid = false;
         }
         
-        // Check for restricted date and time
-        if (date.value === RESTRICTED_DATE) {
-            const timeSelect = document.getElementById('time');
-            if (timeSelect.value !== ALLOWED_TIME_ON_RESTRICTED_DATE) {
-                showFieldError(timeSelect, 'On Saturday August 2nd, only 2:00 PM appointments are available');
-                isValid = false;
-            }
+        // Check for fully booked date
+        if (date.value === FULLY_BOOKED_DATE) {
+            showFieldError(date, 'Saturday August 2nd is fully booked. Please select a different date.');
+            isValid = false;
         }
     }
     
